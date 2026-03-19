@@ -1,77 +1,40 @@
 import streamlit as st
 import pandas as pd
-import ast
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-st.title('🎬 Movie Recommender System')
+# Page config
+st.set_page_config(page_title="Movie Recommender", layout="wide")
+
+st.title("🎬 Movie Recommender System")
 
 # Load dataset
 movies = pd.read_csv("movies.csv")
 
-# ----------- FUNCTIONS -----------
+# Show columns (optional for debug)
+# st.write(movies.columns)
 
-def convert(obj):
-    L = []
-    try:
-        for i in ast.literal_eval(obj):
-            L.append(i['name'])
-    except:
-        pass
-    return L
-
-def convert3(obj):
-    L = []
-    count = 0
-    try:
-        for i in ast.literal_eval(obj):
-            if count != 3:
-                L.append(i['name'])
-                count += 1
-            else:
-                break
-    except:
-        pass
-    return L
-
-def fetch_director(obj):
-    L = []
-    try:
-        for i in ast.literal_eval(obj):
-            if i['job'] == 'Director':
-                L.append(i['name'])
-                break
-    except:
-        pass
-    return L
-
-# ----------- PREPROCESSING -----------
-
-movies = movies[['title', 'overview', 'genres', 'keywords', 'cast', 'crew']]
+# Keep only required columns
+movies = movies[['title', 'overview', 'genres', 'keywords']]
 movies.dropna(inplace=True)
 
-movies['genres'] = movies['genres'].apply(convert)
-movies['keywords'] = movies['keywords'].apply(convert)
-movies['cast'] = movies['cast'].apply(convert3)
-movies['crew'] = movies['crew'].apply(fetch_director)
-
+# Convert text
 movies['overview'] = movies['overview'].apply(lambda x: x.split())
 
-# Combine all features
-movies['tags'] = movies['overview'] + movies['genres'] + movies['keywords'] + movies['cast'] + movies['crew']
+# Combine features
+movies['tags'] = movies['overview'] + movies['genres'] + movies['keywords']
 
 # Convert list → string
 movies['tags'] = movies['tags'].apply(lambda x: " ".join(x))
 
-# ----------- VECTOR + SIMILARITY -----------
-
+# Vectorization
 cv = CountVectorizer(max_features=5000, stop_words='english')
 vectors = cv.fit_transform(movies['tags']).toarray()
 
+# Similarity
 similarity = cosine_similarity(vectors)
 
-# ----------- RECOMMEND FUNCTION -----------
-
+# Recommendation function
 def recommend(movie):
     movie_index = movies[movies['title'] == movie].index[0]
     distances = similarity[movie_index]
@@ -82,15 +45,14 @@ def recommend(movie):
 
     return [movies.iloc[i[0]].title for i in movie_list]
 
-# ----------- UI -----------
-
+# UI
 movie_list = movies['title'].values
 
-selected_movie_name = st.selectbox('Select a movie', movie_list)
+selected_movie_name = st.selectbox("🎥 Select a movie", movie_list)
 
-if st.button('Recommend'):
+if st.button("🚀 Recommend"):
     recommendations = recommend(selected_movie_name)
 
-    st.subheader("🎥 Recommended Movies:")
+    st.subheader("🎬 Recommended Movies:")
     for movie in recommendations:
         st.write(movie)
