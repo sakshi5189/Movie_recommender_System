@@ -8,23 +8,33 @@ It uses Natural Language Processing (NLP) techniques and Machine Learning algori
 🚀 Features
 
 🎥 Recommend similar movies instantly
+
 🧠 Uses cosine similarity for accurate recommendations
+
 ⚡ Fast and interactive UI using Streamlit
+
 📊 Processes movie metadata like cast, crew, genres
 
 🛠️ Technologies Used
 
 Python
+
 Pandas
+
 Scikit-learn
+
 Streamlit
+
 NLP (CountVectorizer)
 
 ⚙️ How It Works
 
 Movie data is preprocessed and important features are combined
+
 Text data is converted into numerical vectors using CountVectorizer
+
 Cosine similarity is used to calculate similarity between movies
+
 Top similar movies are recommended to the user
 
 ▶️ How to Run
